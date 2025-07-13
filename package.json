@@ -1,0 +1,55 @@
+{
+  "version": "0.0.5",
+  "private": false,
+  "type": "module",
+  "name": "weird64",
+  "description": "A unique Base64 variant with sentinel bits",
+  "keywords": [ "util", "weird64", "base64", "encoding", "binary" ],
+  "author": "ZIIO AI",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ziioai/weird64.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ziioai/weird64/issues"
+  },
+  "homepage": "https://github.com/ziioai/weird64#readme",
+  "files": [ "dist", "LICENSE" ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup",
+    "press:dev": "vitepress dev press",
+    "press:build": "vitepress build press",
+    "press:preview": "vitepress preview press",
+    "pub": "npm publish --registry https://registry.npmjs.org"
+  },
+  "dependencies": {
+    "json5": "^2.2.3",
+    "lodash-es": "^4.17.21",
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/lodash-es": "^4.17.12",
+    "@types/node": "^22.15.18",
+    "tsup": "^8.5.0",
+    "typescript": "~5.7.3",
+    "vitepress": "^1.6.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@biomejs/biome"
+    ]
+  }
+}
