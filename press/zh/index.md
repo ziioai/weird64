@@ -15,6 +15,7 @@ hero:
     - theme: alt
       text: TypeDoc API
       link: /api/
+      target: _self
 
 features:
   - title: 精确比特长度

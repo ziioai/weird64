@@ -52,4 +52,4 @@ try {
 ```
 
 Continue with the [encoding format](/format) or see the
-[generated API reference](/api/).
+<a href="/weird64/api/" target="_self">generated API reference</a>.

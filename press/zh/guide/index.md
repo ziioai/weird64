@@ -41,4 +41,4 @@ Blob 载荷必须包含完整字节。对于大型二进制数据，标准的字
 解码器会严格验证输入。未知字符、错误哨兵位、错误填充或非法字符集都会抛出
 `RangeError`。
 
-继续阅读[编码格式](/zh/format)，或查看[TypeDoc API 参考](/api/)。
+继续阅读[编码格式](/zh/format)，或查看<a href="/weird64/api/" target="_self">TypeDoc API 参考</a>。

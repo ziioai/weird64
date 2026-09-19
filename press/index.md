@@ -15,6 +15,7 @@ hero:
     - theme: alt
       text: TypeDoc API
       link: /api/
+      target: _self
 
 features:
   - title: Exact bit length

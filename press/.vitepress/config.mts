@@ -39,7 +39,7 @@ export default defineConfig({
         nav: [
           { text: 'Guide', link: '/guide/' },
           { text: 'Format', link: '/format' },
-          { text: 'API', link: '/api/' },
+          { text: 'API', link: '/api/', target: '_self' },
         ],
         sidebar: [
           {
@@ -47,7 +47,7 @@ export default defineConfig({
             items: [
               { text: 'Getting started', link: '/guide/' },
               { text: 'Encoding format', link: '/format' },
-              { text: 'TypeDoc API', link: '/api/' },
+              { text: 'TypeDoc API', link: '/api/', target: '_self' },
             ],
           },
         ],
@@ -63,7 +63,7 @@ export default defineConfig({
         nav: [
           { text: '指南', link: '/zh/guide/' },
           { text: '编码格式', link: '/zh/format' },
-          { text: 'API', link: '/api/' },
+          { text: 'API', link: '/api/', target: '_self' },
         ],
         sidebar: [
           {
@@ -71,7 +71,7 @@ export default defineConfig({
             items: [
               { text: '快速开始', link: '/zh/guide/' },
               { text: '编码格式', link: '/zh/format' },
-              { text: 'TypeDoc API', link: '/api/' },
+              { text: 'TypeDoc API', link: '/api/', target: '_self' },
             ],
           },
         ],
