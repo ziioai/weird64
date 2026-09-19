@@ -1,55 +1,83 @@
 {
-  "version": "0.0.5",
-  "private": false,
-  "type": "module",
   "name": "weird64",
-  "description": "A unique Base64 variant with sentinel bits",
-  "keywords": [ "util", "weird64", "base64", "encoding", "binary" ],
-  "author": "ZIIO AI",
-  "license": "MIT",
+  "version": "0.1.0",
+  "description": "A compact Base64-like encoding for arbitrary-length bit sequences using sentinel bits",
+  "keywords": [
+    "base64",
+    "binary",
+    "bit-array",
+    "encoding",
+    "serialization",
+    "url-safe"
+  ],
+  "homepage": "https://github.com/ziioai/weird64#readme",
+  "bugs": {
+    "url": "https://github.com/ziioai/weird64/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ziioai/weird64.git"
   },
-  "bugs": {
-    "url": "https://github.com/ziioai/weird64/issues"
-  },
-  "homepage": "https://github.com/ziioai/weird64#readme",
-  "files": [ "dist", "LICENSE" ],
+  "author": "ZIIO AI",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "files": ["dist", "LICENSE"],
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      },
+      "default": "./dist/index.js"
     }
   },
+  "engines": {
+    "node": ">=18.18"
+  },
+  "packageManager": "pnpm@11.23.0",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
-    "dev": "tsup --watch",
     "build": "tsup",
-    "press:dev": "vitepress dev press",
-    "press:build": "vitepress build press",
-    "press:preview": "vitepress preview press",
-    "pub": "npm publish --registry https://registry.npmjs.org"
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "check": "biome check .",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "docs:api": "typedoc",
+    "docs:dev": "pnpm docs:api && vitepress dev press",
+    "docs:build": "pnpm docs:api && vitepress build press",
+    "docs:preview": "vitepress preview press",
+    "check:package": "pnpm build && publint && attw --pack .",
+    "verify": "pnpm check && pnpm typecheck && pnpm test:coverage && pnpm check:package && pnpm docs:build",
+    "prepack": "pnpm build"
   },
   "dependencies": {
-    "json5": "^2.2.3",
-    "lodash-es": "^4.17.21",
-    "zod": "^3.24.4"
+    "es-toolkit": "^1.52.0"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
     "@biomejs/biome": "^1.9.4",
-    "@types/lodash-es": "^4.17.12",
-    "@types/node": "^22.15.18",
-    "tsup": "^8.5.0",
-    "typescript": "~5.7.3",
-    "vitepress": "^1.6.3"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@biomejs/biome"
-    ]
+    "@types/node": "^24.0.0",
+    "@vitest/coverage-v8": "^5.0.1",
+    "publint": "^0.3.24",
+    "tsup": "^8.5.1",
+    "typedoc": "^0.28.20",
+    "typescript": "^6.0.0",
+    "vitepress": "^1.6.4",
+    "vitest": "^5.0.1"
   }
 }

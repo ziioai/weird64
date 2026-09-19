@@ -52,11 +52,16 @@
     "ignore": [
       "**/node_modules/**",
       "**/dist/**",
+      "**/coverage/**",
       "**/build/**",
       "**/.turbo/**",
       "**/docs/**",
       "**/.next/**",
-      "**/out/**"
+      "**/out/**",
+      "press/public/api/**",
+      "press/.vitepress/cache/**",
+      "press/.vitepress/.temp/**",
+      "press/.vitepress/dist/**"
     ]
   }
 }

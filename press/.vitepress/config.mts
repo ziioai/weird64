@@ -1,50 +1,95 @@
-import { defineConfig } from 'vitepress'
+import { defineConfig } from 'vitepress';
 
-// https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "weird64",
-  description: "Powerful Utilities for LLMs",
-  appearance: "dark",
-
   base: '/weird64/',
-  outDir: '../docs',
-
+  cleanUrls: true,
+  lastUpdated: true,
+  sitemap: {
+    hostname: 'https://ziioai.github.io/weird64/',
+  },
   head: [
     ['link', { rel: 'icon', href: '/weird64/favicon.svg' }],
-    ['link', { rel: 'apple-touch-icon', href: '/weird64/apple-touch-icon.png' }],
+    [
+      'link',
+      { rel: 'apple-touch-icon', href: '/weird64/apple-touch-icon.png' },
+    ],
   ],
-
+  locales: {
+    root: {
+      label: 'English',
+      lang: 'en',
+      title: 'Weird64',
+      description: 'Exact encoding for arbitrary-length bit sequences',
+    },
+    zh: {
+      label: '简体中文',
+      lang: 'zh-CN',
+      link: '/zh/',
+      title: 'Weird64',
+      description: '用于任意长度比特序列的精确编码',
+    },
+  },
   themeConfig: {
-    // https://vitepress.dev/reference/default-theme-config
     logo: '/logo.svg',
-    nav: [
-      { text: 'Home', link: '/' },
-      // { text: 'Examples', link: '/markdown-examples' }
-    ],
-    sidebar: [
-      {
-        text: 'Start',
-        items: [
-          { text: 'Start', link: '/start' }
-        ]
-      },
-      {
-        text: 'Utils',
-        items: [
-          { text: 'Utils', link: '/Utils/utils' }
-        ]
-      },
-      {
-        text: 'API Reference',
-        items: [
-          // { text: 'Runtime API Examples', link: '/api-examples' },
-          { text: 'API Reference', link: '/api' }
-        ]
-      }
-    ],
-
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/ziioai/weird64' }
-    ]
-  }
-})
+      { icon: 'github', link: 'https://github.com/ziioai/weird64' },
+    ],
+    locales: {
+      root: {
+        nav: [
+          { text: 'Guide', link: '/guide/' },
+          { text: 'Format', link: '/format' },
+          { text: 'API', link: '/api/' },
+        ],
+        sidebar: [
+          {
+            text: 'Documentation',
+            items: [
+              { text: 'Getting started', link: '/guide/' },
+              { text: 'Encoding format', link: '/format' },
+              { text: 'TypeDoc API', link: '/api/' },
+            ],
+          },
+        ],
+        editLink: {
+          pattern: 'https://github.com/ziioai/weird64/edit/main/press/:path',
+          text: 'Edit this page on GitHub',
+        },
+        lastUpdated: {
+          text: 'Last updated',
+        },
+      },
+      zh: {
+        nav: [
+          { text: '指南', link: '/zh/guide/' },
+          { text: '编码格式', link: '/zh/format' },
+          { text: 'API', link: '/api/' },
+        ],
+        sidebar: [
+          {
+            text: '文档',
+            items: [
+              { text: '快速开始', link: '/zh/guide/' },
+              { text: '编码格式', link: '/zh/format' },
+              { text: 'TypeDoc API', link: '/api/' },
+            ],
+          },
+        ],
+        editLink: {
+          pattern: 'https://github.com/ziioai/weird64/edit/main/press/:path',
+          text: '在 GitHub 上编辑此页',
+        },
+        lastUpdated: {
+          text: '最后更新',
+        },
+        outline: {
+          label: '页面导航',
+        },
+        docFooter: {
+          prev: '上一页',
+          next: '下一页',
+        },
+      },
+    },
+  },
+});

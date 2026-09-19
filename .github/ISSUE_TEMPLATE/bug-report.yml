@@ -1,0 +1,59 @@
+name: Bug report
+description: Report reproducible incorrect behavior in Weird64
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping improve Weird64. Do not disclose security issues here; use private vulnerability reporting instead.
+  - type: input
+    id: version
+    attributes:
+      label: Weird64 version
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Runtime and package manager
+      description: Include browser or Node.js version and npm, pnpm, or yarn version.
+      placeholder: Node.js 24.1, pnpm 11.23
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Provide code or a link to a small repository that reproduces the problem.
+      render: ts
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Add logs, stack traces, screenshots, or compatibility constraints.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues for duplicates.
+          required: true
+        - label: This report does not disclose a security vulnerability.
+          required: true

@@ -1,28 +1,26 @@
 ---
-# https://vitepress.dev/reference/default-theme-home-page
 layout: home
 
 hero:
-  name: "weird64"
-  text: "Hello World."
-  tagline: "Happy to see you here!"
+  name: Weird64
+  text: Exact bit-sequence encoding
+  tagline: A compact, URL-safe Base64-like format for arbitrary-length bits.
   image:
     src: /logo.svg
-    alt: weird64 Logo
+    alt: Weird64 logo
   actions:
     - theme: brand
-      text: Start Now
-      link: /start
+      text: Get started
+      link: /guide/
     - theme: alt
-      text: API Reference
-      link: /api
+      text: TypeDoc API
+      link: /api/
 
-# features:
-#   - title: Feature A
-#     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-#   - title: Feature B
-#     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-#   - title: Feature C
-#     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+features:
+  - title: Exact bit length
+    details: Sentinel bits preserve trailing zeroes without byte alignment.
+  - title: Strict by default
+    details: Invalid alphabets, characters, sentinels, and padding are rejected.
+  - title: TypeScript-first
+    details: TypeScript 6 source, generated declarations, and TypeDoc API pages.
 ---
-

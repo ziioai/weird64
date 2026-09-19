@@ -1,9 +1,14 @@
 
 
-# docs
+# Generated documentation
 press/.vitepress/dist
 press/.vitepress/cache
-press/.obsidian/workspace.json
+press/.vitepress/.temp
+press/public/api
+
+# Package-manager state
+.pnpm-store
+.cache
 
 .DS_Store
 

@@ -1,170 +1,257 @@
-// weird64.ts
+import { uniq } from 'es-toolkit';
 
 /**
- * 默认的 Base64 字符集（移除了空格）
- * 包含: 0-9, A-Z, a-z, -, _
+ * The default URL-safe 64-character alphabet used by Weird64.
+ *
+ * @group Constants
  */
-export const DEFAULT_CHARSET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_";
+export const DEFAULT_CHARSET =
+  '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_';
+
+/** @internal */
+function charsetCharacters(charset: string): string[] {
+  const characters = Array.from(charset);
+
+  if (characters.length !== 64) {
+    throw new RangeError('A Weird64 character set must contain 64 characters.');
+  }
+
+  if (uniq(characters).length !== 64) {
+    throw new RangeError(
+      'A Weird64 character set must contain 64 unique characters.'
+    );
+  }
+
+  return characters;
+}
 
 /**
- * 将布尔数组编码为 Weird64 字符串
- * @param booleans - 要编码的布尔数组
- * @param base64Chars - 可选的 Base64 字符集（默认使用标准字符集）
- * @returns 编码后的字符串
+ * Encodes an arbitrary-length sequence of bits as Weird64.
+ *
+ * Weird64 surrounds the payload with two sentinel bits and pads the result to
+ * a six-bit boundary. This preserves the exact payload length, including
+ * trailing zero bits.
+ *
+ * @example
+ * ```ts
+ * encodeBooleans([true, false, true]); // "s"
+ * ```
+ *
+ * @param booleans - Bits to encode, represented as booleans.
+ * @param charset - A string containing exactly 64 unique characters.
+ * @returns The encoded Weird64 value.
+ * @throws `RangeError` if the character set is invalid.
+ *
+ * @group Boolean arrays
  */
-export function encodeBooleans(booleans: boolean[], base64Chars: string = DEFAULT_CHARSET): string {
-    // 1. 在数据两端添加 true
-    const wrapped = [true, ...booleans, true];
-    
-    // 2. 计算需要填充的 false 数量使其成为 6 的倍数
-    const padding = (6 - (wrapped.length % 6)) % 6;
-    const padded = [...wrapped, ...Array(padding).fill(false)];
-    
-    // 3. 每 6 位一组转换为 Base64 字符
-    let result = "";
-    for (let i = 0; i < padded.length; i += 6) {
-        const chunk = padded.slice(i, i + 6);
-        let value = 0;
-        
-        // 将 6 位二进制转换为十进制
-        for (let j = 0; j < 6; j++) {
-            value = (value << 1) | (chunk[j] ? 1 : 0);
-        }
-        
-        result += base64Chars[value];
+export function encodeBooleans(
+  booleans: readonly boolean[],
+  charset: string = DEFAULT_CHARSET
+): string {
+  const characters = charsetCharacters(charset);
+  const wrapped = [true, ...booleans, true];
+  const padding = (6 - (wrapped.length % 6)) % 6;
+  const padded = [...wrapped, ...Array<boolean>(padding).fill(false)];
+
+  let result = '';
+
+  for (let offset = 0; offset < padded.length; offset += 6) {
+    let value = 0;
+
+    for (let bit = 0; bit < 6; bit += 1) {
+      value = (value << 1) | (padded[offset + bit] ? 1 : 0);
     }
-    
-    return result;
+
+    result += characters[value] as string;
+  }
+
+  return result;
 }
 
 /**
- * 将 Weird64 字符串解码为布尔数组
- * @param encoded - 要解码的字符串
- * @param base64Chars - 可选的 Base64 字符集（默认使用标准字符集）
- * @returns 解码后的布尔数组
+ * Decodes a Weird64 value into its original sequence of bits.
+ *
+ * Decoding is strict: unknown characters, missing sentinels, and impossible
+ * padding are rejected instead of being silently ignored.
+ *
+ * @example
+ * ```ts
+ * decodeBooleans('s'); // [true, false, true]
+ * ```
+ *
+ * @param encoded - A valid Weird64 value.
+ * @param charset - The same 64-character alphabet used during encoding.
+ * @returns The decoded bits represented as booleans.
+ * @throws `RangeError` if the character set or encoded value is invalid.
+ *
+ * @group Boolean arrays
  */
-export function decodeBooleans(encoded: string, base64Chars: string = DEFAULT_CHARSET): boolean[] {
-    // 1. 将每个字符转换为 6 位布尔数组
-    const booleans: boolean[] = [];
-    
-    for (const char of encoded) {
-        const index = base64Chars.indexOf(char);
-        if (index === -1) continue; // 跳过无效字符
-        
-        // 将字符值转换为 6 位二进制（高位在前）
-        for (let i = 5; i >= 0; i--) {
-            booleans.push((index & (1 << i)) !== 0);
-        }
+export function decodeBooleans(
+  encoded: string,
+  charset: string = DEFAULT_CHARSET
+): boolean[] {
+  const characters = charsetCharacters(charset);
+  const characterValues = new Map(
+    characters.map((character, value) => [character, value])
+  );
+  const booleans: boolean[] = [];
+  let encodedCharacterCount = 0;
+
+  for (const character of encoded) {
+    encodedCharacterCount += 1;
+    const value = characterValues.get(character);
+
+    if (value === undefined) {
+      throw new RangeError(
+        `Invalid Weird64 character: ${JSON.stringify(character)}.`
+      );
     }
-    
-    // 2. 移除末尾的所有 false
-    while (booleans.length > 0 && !booleans[booleans.length - 1]) {
-        booleans.pop();
+
+    for (let bit = 5; bit >= 0; bit -= 1) {
+      booleans.push((value & (1 << bit)) !== 0);
     }
-    
-    // 3. 移除首尾的 true（哨兵位）
-    if (booleans.length >= 2) {
-        booleans.pop(); // 移除尾部 true
-        booleans.shift(); // 移除头部 true
-    }
-    
-    return booleans;
+  }
+
+  while (booleans.at(-1) === false) {
+    booleans.pop();
+  }
+
+  const paddingLength = encodedCharacterCount * 6 - booleans.length;
+  const hasSentinels = booleans.length >= 2 && booleans[0] && booleans.at(-1);
+
+  if (!hasSentinels || paddingLength > 5) {
+    throw new RangeError('Invalid Weird64 sentinel bits or padding.');
+  }
+
+  return booleans.slice(1, -1);
 }
 
 /**
- * 将二进制字符串编码为 Weird64
- * @param binaryStr - 二进制字符串（由 '0' 和 '1' 组成）
- * @param base64Chars - 可选的 Base64 字符集（默认使用标准字符集）
- * @returns 编码后的字符串
+ * Encodes a string made exclusively of `0` and `1` characters as Weird64.
+ *
+ * @example
+ * ```ts
+ * encodeBinaryString('101010'); // "rG"
+ * ```
+ *
+ * @param binary - The binary string to encode.
+ * @param charset - A string containing exactly 64 unique characters.
+ * @returns The encoded Weird64 value.
+ * @throws `TypeError` if `binary` contains a character other than `0` or
+ * `1`.
+ * @throws `RangeError` if the character set is invalid.
+ *
+ * @group Binary strings
  */
-export function encodeBinaryString(binaryStr: string, base64Chars: string = DEFAULT_CHARSET): string {
-    const booleans = Array.from(binaryStr, char => char === '1');
-    return encodeBooleans(booleans, base64Chars);
+export function encodeBinaryString(
+  binary: string,
+  charset: string = DEFAULT_CHARSET
+): string {
+  if (!/^[01]*$/.test(binary)) {
+    throw new TypeError('A binary string may contain only "0" and "1".');
+  }
+
+  return encodeBooleans(
+    Array.from(binary, (character) => character === '1'),
+    charset
+  );
 }
 
 /**
- * 将 Weird64 字符串解码为二进制字符串
- * @param encoded - 要解码的字符串
- * @param base64Chars - 可选的 Base64 字符集（默认使用标准字符集）
- * @returns 解码后的二进制字符串
+ * Decodes a Weird64 value into a string of `0` and `1` characters.
+ *
+ * @param encoded - A valid Weird64 value.
+ * @param charset - The same 64-character alphabet used during encoding.
+ * @returns The decoded binary string.
+ * @throws `RangeError` if the character set or encoded value is invalid.
+ *
+ * @group Binary strings
  */
-export function decodeBinaryString(encoded: string, base64Chars: string = DEFAULT_CHARSET): string {
-    const booleans = decodeBooleans(encoded, base64Chars);
-    return booleans.map(bool => bool ? '1' : '0').join('');
-}
-
-
-/**
- * 将 Blob 编码为 Weird64 字符串
- * @param blob - 要编码的 Blob 对象
- * @param base64Chars - 可选的 Base64 字符集（默认使用标准字符集）
- * @returns Promise 解析为编码后的字符串
- */
-export async function encodeBlob(blob: Blob, FileReader:any, base64Chars: string = DEFAULT_CHARSET): Promise<string> {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        
-        reader.onload = () => {
-            try {
-                const buffer = reader.result as ArrayBuffer;
-                const bytes = new Uint8Array(buffer);
-                const binaryString = Array.from(bytes)
-                    .map(byte => byte.toString(2).padStart(8, '0'))
-                    .join('');
-                
-                resolve(encodeBinaryString(binaryString, base64Chars));
-            } catch (error) {
-                reject(error);
-            }
-        };
-        
-        reader.onerror = () => {
-            reject(reader.error);
-        };
-        
-        reader.readAsArrayBuffer(blob);
-    });
+export function decodeBinaryString(
+  encoded: string,
+  charset: string = DEFAULT_CHARSET
+): string {
+  return decodeBooleans(encoded, charset)
+    .map((bit) => (bit ? '1' : '0'))
+    .join('');
 }
 
 /**
- * 将 Weird64 字符串解码为 Blob 对象
- * @param encoded - 要解码的 Weird64 字符串
- * @param mimeType - 原始数据的 MIME 类型
- * @param base64Chars - 可选的 Base64 字符集（默认使用标准字符集）
- * @returns Promise 解析为解码后的 Blob 对象
+ * Encodes the bytes in a `Blob` as Weird64.
+ *
+ * This function uses the standard `Blob.arrayBuffer()` API and works in modern
+ * browsers and Node.js. It does not require callers to provide `FileReader`.
+ *
+ * @param blob - The blob whose bytes should be encoded.
+ * @param charset - A string containing exactly 64 unique characters.
+ * @returns A promise resolving to the encoded Weird64 value.
+ * @throws `RangeError` if the character set is invalid.
+ *
+ * @group Blobs
  */
-export async function decodeBlob(encoded: string, mimeType = 'application/octet-stream', base64Chars: string = DEFAULT_CHARSET): Promise<Blob> {
-    return new Promise((resolve, reject) => {
-        try {
-            const binaryString = decodeBinaryString(encoded, base64Chars);
-            
-            // 确保二进制字符串长度是8的倍数（完整字节）
-            const padding = (8 - (binaryString.length % 8)) % 8;
-            const paddedBinary = binaryString + '0'.repeat(padding);
-            
-            // 将二进制字符串转换为字节数组
-            const bytes = [];
-            for (let i = 0; i < paddedBinary.length; i += 8) {
-                const byteStr = paddedBinary.substring(i, i + 8);
-                bytes.push(Number.parseInt(byteStr, 2));
-            }
-            
-            // 创建 Blob 对象
-            const buffer = new Uint8Array(bytes).buffer;
-            resolve(new Blob([buffer], { type: mimeType }));
-        } catch (error) {
-            reject(error);
-        }
-    });
+export async function encodeBlob(
+  blob: Blob,
+  charset: string = DEFAULT_CHARSET
+): Promise<string> {
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+  let binary = '';
+
+  for (const byte of bytes) {
+    binary += byte.toString(2).padStart(8, '0');
+  }
+
+  return encodeBinaryString(binary, charset);
 }
 
-// 导出所有函数作为模块
-export default {
-    encodeBooleans,
-    decodeBooleans,
-    encodeBinaryString,
-    decodeBinaryString,
-    encodeBlob,
-    decodeBlob,
-    DEFAULT_CHARSET,
+/**
+ * Decodes a Weird64 value containing whole bytes into a `Blob`.
+ *
+ * @param encoded - A Weird64 value produced by {@link encodeBlob}.
+ * @param mimeType - MIME type assigned to the returned blob.
+ * @param charset - The same 64-character alphabet used during encoding.
+ * @returns A promise resolving to the decoded blob.
+ * @throws `RangeError` if the decoded payload is not byte-aligned or if
+ * the character set or encoded value is invalid.
+ *
+ * @group Blobs
+ */
+export async function decodeBlob(
+  encoded: string,
+  mimeType = 'application/octet-stream',
+  charset: string = DEFAULT_CHARSET
+): Promise<Blob> {
+  const binary = decodeBinaryString(encoded, charset);
+
+  if (binary.length % 8 !== 0) {
+    throw new RangeError(
+      'A Blob payload must contain a whole number of bytes.'
+    );
+  }
+
+  const bytes = new Uint8Array(binary.length / 8);
+
+  for (let offset = 0; offset < binary.length; offset += 8) {
+    bytes[offset / 8] = Number.parseInt(binary.slice(offset, offset + 8), 2);
+  }
+
+  return new Blob([bytes], { type: mimeType });
+}
+
+/**
+ * Namespace-style API for consumers who prefer a single object.
+ *
+ * All functions are also available as named exports for optimal tree shaking.
+ *
+ * @group Utilities
+ */
+const weird64 = {
+  encodeBooleans,
+  decodeBooleans,
+  encodeBinaryString,
+  decodeBinaryString,
+  encodeBlob,
+  decodeBlob,
+  DEFAULT_CHARSET,
 };
+
+export default weird64;

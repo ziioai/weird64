@@ -1,12 +1,11 @@
-//
-
 export {
-  default as weird64,
-  encodeBooleans,
-  decodeBooleans,
-  encodeBinaryString,
-  decodeBinaryString,
-  encodeBlob,
-  decodeBlob,
   DEFAULT_CHARSET,
-} from "./weird64";
+  decodeBinaryString,
+  decodeBlob,
+  decodeBooleans,
+  default,
+  default as weird64,
+  encodeBinaryString,
+  encodeBlob,
+  encodeBooleans,
+} from './weird64';
