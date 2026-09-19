@@ -18,10 +18,9 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-          cache: pnpm
           registry-url: https://registry.npmjs.org
       - name: Verify release tag
         run: test "v$(node --print "require('./package.json').version")" = "$GITHUB_REF_NAME"
       - run: pnpm install --frozen-lockfile
       - run: pnpm verify
-      - run: pnpm publish --provenance --access public --no-git-checks
+      - run: npm publish --access public
